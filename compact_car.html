@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Js Physics</title>
+</head>
+<body>
+    <canvas id="gameArea" width=800 height=800 style="border:1px solid black"></canvas>
+    <script>
+        // Canvas setup
+        const canvas = document.getElementById("gameArea");
+        const ga = canvas.getContext("2d");
+        
+        // Player variable init
+        var playerX = 400;
+        var playerY = 400;
+        
+        var playerWidth = 50;
+        var playerHeight = 25;
+        
+        var rotateAngle = 0;
+        
+        var playerXVel = 0;
+        var playerYVel = 0;
+        var rotateVel = 0;
+        
+        var playerSpeed = 0.8;
+        var reversePlayerSpeed = 0.6;
+        var playerDecel = 0.95;
+        var rotateSpeed = 0.6;
+        var rotateDecel = 0.91;
+        
+        // Controls variable init
+        var lAccel = false;
+        var rAccel = false;
+        var lReverse = false;
+        var rReverse = false;
+        var brake = false;
+        
+        const lAccelKey = "ShiftLeft";
+        const rAccelKey = "ShiftRight";
+        const lReverseKey = "ControlLeft";
+        const rReverseKey = "ControlRight";
+        const brakeKey = "Space";
+        
+        // Control input
+        document.addEventListener("keydown", (event) => {
+            if (event.code == lAccelKey){
+                lAccel = true;
+            }
+            if (event.code == rAccelKey){
+                rAccel = true;
+            }
+            if (event.code == lReverseKey){
+                lReverse = true;
+            }
+            if (event.code == rReverseKey){
+                rReverse = true;
+            }
+            if (event.code == brakeKey){
+                brake = true;
+            }
+        })
+        document.addEventListener("keyup", (event) => {
+            if (event.code == lAccelKey){
+                lAccel = false;
+            }
+            if (event.code == rAccelKey){
+                rAccel = false;
+            }
+            if (event.code == lReverseKey){
+                lReverse = false;
+            }
+            if (event.code == rReverseKey){
+                rReverse = false;
+            }
+            if (event.code == brakeKey){
+                brake = false;
+            }
+        })
+        
+        // Tick
+        function update(){
+            // Clear canvas
+            ga.clearRect(0, 0, canvas.width, canvas.height);
+        
+            // Wall collision
+            if (playerX + playerXVel < 0 && playerXVel < 0){
+                playerXVel = 0;
+                playerX = 0;
+            }
+            if (playerX + playerXVel > canvas.width-playerWidth && playerXVel > 0){
+                playerXVel = 0;
+                playerX = canvas.width - playerWidth;
+            }
+            if (playerY + playerYVel < 0 && playerYVel < 0){
+                playerYVel = 0;
+                playerY = 0;
+            }
+            if (playerY + playerYVel > canvas.height - playerHeight && playerYVel > 0){
+                playerYVel = 0;
+                playerY = canvas.height - playerHeight;
+            }
+        
+            // Change player movement
+            playerX += playerXVel;
+            playerY += playerYVel;
+        
+            rotateAngle += rotateVel;
+        
+            // Acceleration
+            if (lAccel == true || rAccel == true){
+                playerXVel += Math.cos(rotateAngle*Math.PI/180)*playerSpeed;
+                playerYVel += Math.sin(rotateAngle*Math.PI/180)*playerSpeed;
+            }
+            if (rAccel == true && lAccel == false){
+                rotateVel += rotateSpeed;
+            }
+            if (rAccel == false && lAccel == true){
+                rotateVel -= rotateSpeed;
+            }
+            // Reversed Acceleration
+            if (lReverse == true || rReverse == true){
+                playerXVel -= Math.cos(rotateAngle*Math.PI/180)*reversePlayerSpeed;
+                playerYVel -= Math.sin(rotateAngle*Math.PI/180)*reversePlayerSpeed;
+            }
+            if (rReverse == true && lReverse == false){
+                rotateVel -= rotateSpeed;
+            }
+            if (rReverse == false && lReverse == true){
+                rotateVel += rotateSpeed;
+            }
+        
+            // Deceleration
+            if (Math.round(playerXVel*10) != 0){
+                playerXVel *=playerDecel;
+            } else {
+                playerXVel = 0;
+            }
+            if (Math.round(playerYVel*10) != 0){
+                playerYVel *= playerDecel;
+            } else {
+                playerYVel = 0;
+            }
+            if (Math.round(rotateVel*2) != 0){
+                rotateVel *= rotateDecel;
+            } else {
+                rotateVel = 0;
+            }
+            // Brake Deceleration
+            if (brake == true){
+                playerXVel *= 0.9;
+                playerYVel *= 0.9;
+                rotateVel *= 0.9;
+            }
+        
+            //Draw player
+            ga.translate(playerX+playerWidth/2, playerY+playerHeight/2)
+            ga.rotate(rotateAngle*Math.PI/180)
+            ga.fillStyle = "black";
+            ga.fillRect(-playerWidth/2,-playerHeight/2,playerWidth,playerHeight)
+            ga.setTransform(1,0,0,1,0,0)
+        
+            //Next update
+            requestAnimationFrame(update)
+        }
+        update()</script>
+</html>

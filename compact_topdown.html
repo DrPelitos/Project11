@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Js Physics</title>
+</head>
+<body>
+    <canvas id="gameArea" width=800 height=800 style="border:1px solid black"></canvas>
+    <script>
+        // Canvas setup
+        const canvas = document.getElementById("gameArea");
+        const ga = canvas.getContext("2d");
+        
+        // Player variable init
+        var playerX = 400;
+        var playerY = 400;
+        
+        var playerWidth = 50;
+        var playerHeight = 50;
+        
+        var playerXVel = 0;
+        var playerYVel = 0;
+        
+        var playerSpeed = 2.2
+        var playerDecel = 0.9
+        
+        // Controls variable init
+        var aUp = false
+        var aDown = false
+        var aLeft = false
+        var aRight = false
+        
+        // Control input
+        document.addEventListener("keydown", (event) => {
+            if (event.code == "ArrowUp"){
+                aUp = true;
+            }
+            if (event.code == "ArrowDown"){
+                aDown = true;
+            }
+            if (event.code == "ArrowLeft"){
+                aLeft = true;
+            }
+            if (event.code == "ArrowRight"){
+                aRight = true;
+            }
+        })
+        document.addEventListener("keyup", (event) => {
+            if (event.code == "ArrowUp"){
+                aUp = false;
+            }
+            if (event.code == "ArrowDown"){
+                aDown = false;
+            }
+            if (event.code == "ArrowLeft"){
+                aLeft = false;
+            }
+            if (event.code == "ArrowRight"){
+                aRight = false;
+            }
+        })
+        
+        
+        // Tick
+        function update(){
+            // Clear canvas
+            ga.clearRect(0, 0, canvas.width, canvas.height);
+        
+            // Wall collision
+            if (playerX + playerXVel < 0 && playerXVel < 0){
+                playerXVel = 0
+                playerX = 0
+            }
+            if (playerX + playerXVel > canvas.width-playerWidth && playerXVel > 0){
+                playerXVel = 0
+                playerX = canvas.width - playerWidth
+            }
+            if (playerY + playerYVel < 0 && playerYVel < 0){
+                playerYVel = 0
+                playerY = 0
+            }
+            if (playerY + playerYVel > canvas.height - playerHeight && playerYVel > 0){
+                playerYVel = 0
+                playerY = canvas.height - playerHeight
+            }
+        
+            // Change player movement
+            playerX += playerXVel;
+            playerY += playerYVel;
+        
+            // Acceleration
+            if (aUp == true){
+                playerYVel -= playerSpeed;
+            }
+            if (aDown == true){
+                playerYVel += playerSpeed;
+            }
+            if (aLeft == true){
+                playerXVel -= playerSpeed;
+            }
+            if (aRight == true){
+                playerXVel += playerSpeed;
+            }
+            
+            // Deceleration
+            if (Math.round(playerXVel) != 0){
+                playerXVel = playerXVel * 0.9;
+            } else {
+                playerXVel = 0;
+            }
+            if (Math.round(playerYVel) != 0){
+                playerYVel = playerYVel * 0.9;
+            } else {
+                playerYVel = 0;
+            }
+        
+            //Draw player
+            ga.fillStyle = "black"
+            ga.fillRect(playerX,playerY,playerWidth,playerHeight)
+        
+            //Next update
+            requestAnimationFrame(update)
+        }
+        update()
+        </script>
+</html>
